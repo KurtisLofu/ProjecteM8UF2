@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/allSpawn"
+        android:title="Show all spawns" />
+    <item
+        android:id="@+id/both"
+        android:title="Show raids \&amp; spawns" />
+    <item
+        android:id="@+id/allRaids"
+        android:title="Show all raids" />
+
+    <item
+        android:id="@+id/insertSpawn"
+        android:title="Insert new spawn" />
+</menu>
