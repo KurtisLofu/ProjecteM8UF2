@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -60,7 +61,7 @@ public class AddSpawnActivity extends FragmentActivity implements OnMapReadyCall
             @Override
             public void onMapClick(LatLng latLng) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(AddSpawnActivity.this);
-                builder.setTitle("Title");
+                builder.setTitle("Choose a Poké ID");
 
                 final Spinner input = new Spinner(AddSpawnActivity.this);
                 String[] arrayPokeID = new String[] {"8", "9", "10", "11" , "12", "13"};
@@ -75,11 +76,17 @@ public class AddSpawnActivity extends FragmentActivity implements OnMapReadyCall
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         setResult(RESULT_OK);
-                        Intent i = new Intent();
-                        i.putExtra("pokeid",spawnPokemon);
-                        i.putExtra("lat", latLng.latitude);
-                        i.putExtra("lng", latLng.longitude);
-                        finish();
+                        try {
+                            Intent i = new Intent();
+                            i.putExtra("pokeid", spawnPokemon);
+                            i.putExtra("lat", latLng.latitude);
+                            i.putExtra("lng", latLng.longitude);
+                        } catch (Exception ex) {
+                            Log.i("errorAPI", "Sense web service petarà");
+                        }
+                        finally {
+                            finish();
+                        }
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
