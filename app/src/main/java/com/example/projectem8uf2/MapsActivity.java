@@ -1,23 +1,20 @@
 package com.example.projectem8uf2;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -28,9 +25,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -112,13 +107,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mMap.setMyLocationEnabled(true);
 
+        /**
+         * Al fer click en un marker, s'obrirà un dialog que pregunta si vols esborrar-lo. Ja sigui Raid o Spawn.
+         *
+         */
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 String snippet = marker.getSnippet();
-                Log.i("ggegege", "Snippet: " + snippet);
                 String id = snippet.substring(snippet.indexOf(":") + 1).trim();
-                Log.i("ggegege", "ID: " + id);
                 boolean isRaid = marker.getTitle().contains("Raid");
 
                 new AlertDialog.Builder(MapsActivity.this)
@@ -173,6 +171,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        /**
+         * Es dispara fent un longClick en el marker. Farà el PUT a la API amb la nova geolocalització del marker.
+         */
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             @Override
             public void onMarkerDragStart(Marker marker) {
@@ -186,10 +187,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onMarkerDragEnd(Marker marker) {
+                /**
+                 * Obté quina Raid/Spawn és a partir d'un GET de l'ID que apareix al snippet del marker
+                  */
                 String snippet = marker.getSnippet();
-                Log.i("ggegege", "Snippet: " + snippet);
                 String id = snippet.substring(snippet.indexOf(":") + 1).trim();
-                Log.i("ggegege", "ID: " + id);
                 boolean isRaid = marker.getTitle().contains("Raid");
 
                 if (isRaid) {
@@ -274,6 +276,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    /**
+     * Obté la llista d'Spawns
+     */
     private void GetAllSpawnsFromAPI() {
 
         try {
@@ -297,6 +302,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Obté el nom del Poké amb un GET de la foreing key del Spawn y el marca al mapa
+     */
     public void ColocarMarkersSpawns() {
 
         Spawn aux = null;
@@ -342,6 +350,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Obté totes les Raids
+     */
     private void GetAllRaidsFromAPI() {
 
         Call<List<Raid>> call = service.getAllRaids("raids");
@@ -361,6 +372,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
+
+    /**
+     * Obté el nom del Poké amb un GET de la foreing key del Raid y el marca al mapa
+     */
 
     public void ColocarMarkersRaids() {
 
@@ -408,6 +423,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Demana permissos d'ubicació (el primer cop crec que fa petar l'aplicació)
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         switch (requestCode) {
@@ -421,32 +442,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * On result de la AddSpawnActivity, fa el POST
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
 
-                Spawn spawn = new Spawn();
-                spawn.setPokeId(data.getIntExtra("pokeid", -1));
-                spawn.setLng(data.getFloatExtra("lng", -1));
-                spawn.setLat(data.getFloatExtra("lat", -1));
+                try {
+                    Spawn spawn = new Spawn();
+                    spawn.setPokeId(data.getIntExtra("pokeid", -1));
+                    spawn.setLng(data.getFloatExtra("lng", -1));
+                    spawn.setLat(data.getFloatExtra("lat", -1));
 
-                Call<Spawn> call = service.insertSpawn(spawn);
-                call.enqueue(new Callback<Spawn>() {
-                    @Override
-                    public void onResponse(Call<Spawn> call, Response<Spawn> response) {
-                        Toast.makeText(MapsActivity.this, "Inserted successfully.", Toast.LENGTH_SHORT).show();
-                        GetAllSpawnsFromAPI();
-                    }
+                    Call<Spawn> call = service.insertSpawn(spawn);
+                    call.enqueue(new Callback<Spawn>() {
+                        @Override
+                        public void onResponse(Call<Spawn> call, Response<Spawn> response) {
+                            Toast.makeText(MapsActivity.this, "Inserted successfully.", Toast.LENGTH_SHORT).show();
+                            GetAllSpawnsFromAPI();
+                        }
 
-                    @Override
-                    public void onFailure(Call<Spawn> call, Throwable t) {
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<Spawn> call, Throwable t) {
+                            setResult(RESULT_CANCELED);
+                            finish();
+                        }
+                    });
 
+                } catch (Exception ex) {
+                    Log.i("ErrorAPI", "Sense webService petarà");
+                }
 
             }
         }

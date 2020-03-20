@@ -35,8 +35,7 @@
             android:label="@string/title_activity_add_spawn"></activity>
         <activity
             android:name=".MapsActivity"
-            android:label="PocketMonstersAwayApi" />
-        <activity android:name=".MainActivity">
+            android:label="PocketMonstersAwayApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
